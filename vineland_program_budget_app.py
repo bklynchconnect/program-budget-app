@@ -20,9 +20,11 @@ st.markdown(
 
 salary_by_employee_file = st.file_uploader("Upload file (.xlsx)", type=["xlsx"])
 
-pivot_values = st.selectbox('Select cost or hours:',options=['Cost','Hours'])
-if pivot_values == 'Hours':
+pivot_values_option = st.selectbox('Select cost or hours:',options=['Cost','Hours'])
+if pivot_values_option == 'Hours':
     pivot_values = 'ActualQty'
+else:
+    pivot_values = 'Cost'
 
 if salary_by_employee_file is not None:
     try:
@@ -36,10 +38,14 @@ if salary_by_employee_file is not None:
         df_sbe_pivot = df_salary_by_employee.pivot_table(values=pivot_values,columns='FundingSourceType',index='ResourceName',fill_value=0,aggfunc='sum')
         df_sbe_pivot['Total'] = df_sbe_pivot.sum(axis=1)
         df_sbe_pivot = df_sbe_pivot[df_sbe_pivot['Total'] > 0]
+
+        st.write(f'Total of employee {pivot_values_option.lower()} by funding source type:')
+        st.dataframe(df_sbe_pivot)
+
         df_sbe_pivot_percent = 100*df_sbe_pivot.div(df_sbe_pivot['Total'],axis=0)
         df_sbe_pivot_percent = df_sbe_pivot_percent.apply(lambda x: np.round(x,decimals=0)).astype(int)
 
-        st.write('Percent of employee cost by funding source type:')
+        st.write(f'Percent of employee {pivot_values_option.lower()} by funding source type:')
         st.dataframe(df_sbe_pivot_percent)
 
     except Exception as e:
