@@ -20,14 +20,20 @@ st.markdown(
 
 salary_by_employee_file = st.file_uploader("Upload file (.xlsx)", type=["xlsx"])
 
+pivot_values = st.selectbox('Select cost or hours:',options=['Cost','Hours'])
+if pivot_values == 'Hours':
+    pivot_values = 'ActualQty'
+
 if salary_by_employee_file is not None:
     try:
         df_salary_by_employee = pd.read_excel(salary_by_employee_file,sheet_name='Sheet1')
         st.write('Data loaded:')
         st.dataframe(df_salary_by_employee)
 
+        
+
         df_salary_by_employee['FundingSourceType'] = df_salary_by_employee['FundingSource'].apply(lambda x: x[:2])
-        df_sbe_pivot = df_salary_by_employee.pivot_table(values='Cost',columns='FundingSourceType',index='ResourceName',fill_value=0,aggfunc='sum')
+        df_sbe_pivot = df_salary_by_employee.pivot_table(values=pivot_values,columns='FundingSourceType',index='ResourceName',fill_value=0,aggfunc='sum')
         df_sbe_pivot['Total'] = df_sbe_pivot.sum(axis=1)
         df_sbe_pivot = df_sbe_pivot[df_sbe_pivot['Total'] > 0]
         df_sbe_pivot_percent = 100*df_sbe_pivot.div(df_sbe_pivot['Total'],axis=0)
