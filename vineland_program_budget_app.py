@@ -27,7 +27,7 @@ if salary_by_employee_file is not None:
         st.dataframe(df_salary_by_employee)
 
         df_salary_by_employee['FundingSourceType'] = df_salary_by_employee['FundingSource'].apply(lambda x: x[:2])
-        df_sbe_pivot = df_salary_by_employee.pivot_table(values='Cost',columns='FundingSourceType',index='ResourceName',fill_value=0)
+        df_sbe_pivot = df_salary_by_employee.pivot_table(values='Cost',columns='FundingSourceType',index='ResourceName',fill_value=0,aggfunc='sum')
         df_sbe_pivot['Total'] = df_sbe_pivot.sum(axis=1)
         df_sbe_pivot = df_sbe_pivot[df_sbe_pivot['Total'] > 0]
         df_sbe_pivot_percent = 100*df_sbe_pivot.div(df_sbe_pivot['Total'],axis=0)
